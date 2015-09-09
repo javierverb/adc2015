@@ -1,17 +1,14 @@
 all: run
 
 run: maindec_tb
-	ghdl -r adder_tb --stop-time=50ns --vcd=maindec.vcd
+	ghdl -r maindec_tb --stop-time=100ns --vcd=maindec.vcd
 
-adder_tb: maindec maindec_tb.vhdl
-	ghdl -a --ieee=synopsys -fexplicit maindec_tb.vhdl
-	ghdl -e --ieee=synopsys -fexplicit maindec_tb	
+maindec: maindec.vhd
+	ghdl -a maindec.vhd
 
-adder: maindec.vhdl
-	ghdl -a --ieee=synopsys -fexplicit maindec.vhdl
+maindec_tb: maindec maindec_tb.vhd
+	ghdl -a maindec_tb.vhd
+	ghdl -e maindec_tb
 
 clean: 
-	rm -rf maindec_tb
-	rm -rf *.o
-	rm -rf *.cf
-	rm -rf *.vcd
+	rm -rf maindec_tb rm -rf *.o rm -rf *.cf rm -rf *.vcd rm *.vhd~ rm Makefile~
