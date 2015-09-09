@@ -1,17 +1,14 @@
 all: run
 
 run: regfile_tb
-	ghdl -r regfile_tb --stop-time=50ns --vcd=regfile.vcd
+	ghdl -r regfile_tb --stop-time=100ns --vcd=regfile.vcd
 
-adder_tb: regfile v_tb.vhdl
-	ghdl -a --ieee=synopsys -fexplicit regfile_tb.vhdl
-	ghdl -e --ieee=synopsys -fexplicit regfile_tb	
+regfile: regfile.vhd
+	ghdl -a regfile.vhd
 
-adder: regfile.vhdl
-	ghdl -a --ieee=synopsys -fexplicit regfile.vhdl
+regfile_tb: regfile regfile_tb.vhd
+	ghdl -a regfile_tb.vhd
+	ghdl -e regfile_tb
 
 clean: 
-	rm -rf regfile_tb
-	rm -rf *.o
-	rm -rf *.cf
-	rm -rf *.vcd
+	rm -rf regfile_tb	rm -rf *.o rm -rf *.cf rm -rf *.vcd rm *.vhd~ rm Makefile~
