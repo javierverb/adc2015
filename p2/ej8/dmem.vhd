@@ -1,11 +1,12 @@
---implementacion de la memoria dmem
---librerias
+-- implementacion de la memoria dmem
+-- librerias
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
---entidades
--- a = direccion, wd = dato a ingresar, clk = reloj, we = 1(escritura) o 0(lectura)
+-- entidades
+-- a = direccion, wd = dato a ingresar, clk = reloj, we = 1(escritura) 
+-- o 0(lectura)
 entity dmem is
     generic (bits: integer := 32; words: integer := 64);
     port (
@@ -15,7 +16,7 @@ entity dmem is
         );
 end entity;
 
---iniciando arquitectura
+-- iniciando arquitectura
 architecture rom_32 of dmem is
     type type_mem is array (0 to words-1) of std_logic_vector(bits-1 downto 0); --Es una matriz
 begin
