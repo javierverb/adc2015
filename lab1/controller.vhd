@@ -7,6 +7,7 @@ entity controller is
     AluControl: out std_logic_vector(2 downto 0));
 end entity;
 
+--la unidad de control incluye a los módulo aludec y maindec internamente
 architecture arq_controller of controller is
     component aludec
         port(funct: in std_logic_vector(0 to 5);
