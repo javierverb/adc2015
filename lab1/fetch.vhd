@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 entity fetch is
-    port( Jump, PcSrcM, clk, reset: in std_logic;
+    port( JumpM, PcSrcM, clk, reset: in std_logic;
         PcBranchM: in std_logic_vector(31 downto 0);
         InstrF, PCF, PCPLus4F: out std_logic_vector(31 down to 0)
     );
@@ -31,3 +31,25 @@ architecture fetch_arq of fetch is
         port (a : in std_logic_vector(0 to 6);
             rd : out std_logic_vector(31 downto 0)
         );
+
+signal PCPLus4F_f: std_logic_vector(31 downto 0);
+signal PC0, PC1, PCJump, PCF: std_logic_vector (31 downto 0);
+signal cuatro: std_logic_vector(31 downto 0) := x"00000004";
+
+PCJump<=PCPlus4F1(31 downto 28) & Instrf_s(25 downto 0) & "00";
+PCPLus4F<=PCPLus4F_f;
+InstrF<=InstrF_f;
+
+begin
+
+    mux2_a: mux2 port map(d0=>PCPLus4F_f, d1=>PCBranchM, s=>PcSrcM, y=>PC0);
+
+    mux2_b: mux2 port map(d0=>PC0, d1=>PCJump, s=>JumpM, y=>PC1);
+
+    flopr: flopr port map(d=>PC1, clk=>clk, reset=>reset, q=>PCF);
+
+    imem: imem port map(a=>PCF(7 downto 2), rd=>InstrF_f);
+
+    adder: adder port map(a=>PCF, b=>cuatro, PCPLus4F_f);
+
+end architecture;
