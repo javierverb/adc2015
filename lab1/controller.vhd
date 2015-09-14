@@ -27,5 +27,5 @@ signal Aluop: std_logic_vector(1 downto 0);
 
 begin
     p0: maindec port map(Op, MemToReg, MemWrite, Branch, AluSrc, RegDst, RegWrite, Jump, Aluop);
-    p1: aludec port map(Funct=>funct, alucontrol=>Alucontrol, aluop=>Aluop);
+    p1: aludec port map(Funct=>funct, alucontrol=>Alucontrol, Aluop=>aluop);
 end architecture;
