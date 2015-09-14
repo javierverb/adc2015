@@ -8,6 +8,7 @@ entity fetch is
     );
 
 architecture fetch_arq of fetch is
+--declaracion de los componentes internos del modulo fetch
     component adder
         port(a, b : in std_logic_vector(31 downto 0);
             y : out std_logic_vector(31 downto 0));
@@ -31,6 +32,7 @@ architecture fetch_arq of fetch is
         port (a : in std_logic_vector(0 to 6);
             rd : out std_logic_vector(31 downto 0)
         );
+--------------------------------------------------------
 
 signal PCPLus4F_f: std_logic_vector(31 downto 0);
 signal PC0, PC1, PCJump, PCF: std_logic_vector (31 downto 0);
