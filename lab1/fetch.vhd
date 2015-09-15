@@ -40,7 +40,6 @@ signal cuatro: std_logic_vector(31 downto 0) := x"00000004";
 
 PCJump<=PCPlus4F1(31 downto 28) & Instrf_s(25 downto 0) & "00";
 PCPLus4F<=PCPLus4F_f;
-InstrF<=InstrF_f;
 
 begin
 
@@ -50,7 +49,7 @@ begin
 
     flopr1: flopr port map(d=>PC1, clk=>clk, reset=>reset, q=>PCF);
 
-    imem1: imem port map(a=>PCF(7 downto 2), rd=>InstrF_f);
+    imem1: imem port map(a=>PCF(7 downto 2), rd=>InstrF);
 
     adder1: adder port map(a=>PCF, b=>cuatro, PCPLus4F_f);
 
