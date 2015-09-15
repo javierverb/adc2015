@@ -1,0 +1,75 @@
+Arquitectura de computadoras
+
+Integrantes del grupo:
+
+Dario Molina - 
+Javier Verblud - javier2mil8@gmail.com
+Rogelio Capello -
+Adrian Moyano Reyna - 
+
+Objetivos para este laboratorio:
+
+- Desarrollar código a base de componentes simples en lenguaje VHDL, que describan pequeños circuitos
+secuenciales y combinacionales vistos en el teórico y el práctico.
+- Utilizar la herramienta GHDL para analizar y “compilar” el código VHDL.
+- Desarrollar código VHDL (testbench) que testee el código del circuito.
+- Mediante el uso de gtkwave, analizar las formas de onda y testear el resultado.
+- Aprender a reutilizar código VHDL mediante componentes.
+
+Las tareas y recomendaciones se pueden leer desde el pdf del enunciado.
+
+Metodologías de trabajo:
+
+    - División equitativa de módulos.
+    - Integrar los conocimientos adquiridos durante la resolución de los prácticos.
+    - Entendimiento del funcionamiento de puertos, señales, entidades y arquitecturas.
+
+Resolución del módulo Fetch:
+
+    - El más costoso de entender pues en base a este pudimos deducir la mecánica
+    los siguientes módulos.
+    - Nos basamos en los componentes internos y respetamos el diseño para evitar
+    confusiones en las conexiones.
+
+Resolución del módulo Decode:
+    - Con la misma metodología, se analizó los componentes internos y se procedió
+    a conectar por medio de señales y puertos.
+
+Siguiendo la metodología anteriormente practicada se pudo
+avanzar de manera constante en el resto de los módulos.
+Sin embargo se decidió concentrar la mayor cantidad de esfuerzo/tiempo en la creación
+de test bench y prueba de componentes.
+
+Cabe destacar además que en la consigna NO era excluyente la idea de utilizar los 
+componentes como librería '.work' por lo que nos pareció una idea más clara declarar
+los componentes utilizados dentro de cada módulo.
+Por ejemplo sea el caso de fetch, donde internamente se declaran los componentes
+'adder', 'mux2', 'flopr', 'imem'. 
+Esta fue una decisión conjunta de diseño.
+
+Complicaciones:
+    - Entender el módulo provisto por la cátedra: 'imem', el cual interactuaba con 
+    un archivo llamado MIPS_SOFT_FILE.
+
+Generalizaciones:
+
+    En base a lo aprendido durante todo el transcurso de la materia y, generalizando,
+    concluimos de manera simplificada lo siguiente:
+
+    entity some_name is
+    end entity;  -> hace referencia a la declaración de puertos ya se tanto
+                    de entrada como de salida para un componente.
+
+    architecture some_name of some_entity is
+    end arquitecture; -> hace referencia a la lógica ya sea asíncrona o secuencial 
+                         respecto a la entidad declarada anteriormente.
+                         Esta lógica básicamente es el funcionamiento de mi entidad.
+                         Ej: si la entidad es un sumador, la lógica sería sumar.
+
+    signal -> son una abstracción de software que permite 'conectar' entradas y salidas.
+
+
+Conclusiones:
+    La complejidad de diseñar un datapath no es menor y esto es debido a la gran cantidad de sub-componentes y módulos que a su vez se conforman de módulos aún más pequeños. Sin embargo y aplicando una buena distribución y metodología de desarrollo
+    es posible reducir su dificultad.
+    Esperamos continuar mejorando en laboratorios siguientes.
