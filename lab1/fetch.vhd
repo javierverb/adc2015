@@ -2,10 +2,11 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 entity fetch is
-    port( JumpM, PcSrcM, clk, reset: in std_logic;
+    port(JumpM, PcSrcM, clk, reset: in std_logic;
         PcBranchM: in std_logic_vector(31 downto 0);
         InstrF, PCF, PCPLus4F: out std_logic_vector(31 down to 0)
     );
+end entity
 
 architecture fetch_arq of fetch is
 --declaracion de los componentes internos del modulo fetch
