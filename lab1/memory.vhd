@@ -29,13 +29,3 @@ begin
                         rd=>ReadDat --salida
                         );
 end architecture;
-    
-
-
-
-
-
-
-
-
-end architecture;
