@@ -6,6 +6,7 @@ entity fetch is
         PcBranchM: in std_logic_vector(31 downto 0);
         InstrF, PCF, PCPLus4F: out std_logic_vector(31 down to 0)
     );
+end entity;
 
 architecture fetch_arq of fetch is
 --declaracion de los componentes internos del modulo fetch
