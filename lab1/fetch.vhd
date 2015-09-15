@@ -48,10 +48,10 @@ begin
 
     mux2_b: mux2 port map(d0=>PC0, d1=>PCJump, s=>JumpM, y=>PC1);
 
-    flopr: flopr port map(d=>PC1, clk=>clk, reset=>reset, q=>PCF);
+    flopr1: flopr port map(d=>PC1, clk=>clk, reset=>reset, q=>PCF);
 
-    imem: imem port map(a=>PCF(7 downto 2), rd=>InstrF_f);
+    imem1: imem port map(a=>PCF(7 downto 2), rd=>InstrF_f);
 
-    adder: adder port map(a=>PCF, b=>cuatro, PCPLus4F_f);
+    adder1: adder port map(a=>PCF, b=>cuatro, PCPLus4F_f);
 
 end architecture;
