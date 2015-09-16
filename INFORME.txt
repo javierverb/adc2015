@@ -2,10 +2,10 @@ Arquitectura de computadoras
 
 Integrantes del grupo:
 
-Dario Molina - 
+Dario Molina - darvak8@gmail.com
 Javier Verblud - javier2mil8@gmail.com
 Rogelio Capello - rdc.capello@gmail.com
-Adrian Moyano Reyna - 
+Adrian Moyano Reyna - koquysufo@gmail.com
 
 Objetivos para este laboratorio:
 
@@ -35,17 +35,15 @@ Resolución del módulo Decode:
     - Con la misma metodología, se analizó los componentes internos y se procedió
     a conectar por medio de señales y puertos.
 
-Siguiendo la metodología anteriormente practicada se pudo
-avanzar de manera constante en el resto de los módulos.
-Sin embargo se decidió concentrar la mayor cantidad de esfuerzo/tiempo en la creación
-de test bench y prueba de componentes.
+    Siguiendo la metodología anteriormente practicada se pudo avanzar de manera constante
+en el resto de los módulos. Sin embargo se decidió concentrar la mayor cantidad de 
+esfuerzo/tiempo en la creación de test bench y prueba de componentes.
 
-Cabe destacar además que en la consigna NO era excluyente la idea de utilizar los 
+    Cabe destacar además que en la consigna NO era excluyente la idea de utilizar los 
 componentes como librería '.work' por lo que nos pareció una idea más clara declarar
 los componentes utilizados dentro de cada módulo.
 Por ejemplo sea el caso de fetch, donde internamente se declaran los componentes
-'adder', 'mux2', 'flopr', 'imem'. 
-Esta fue una decisión conjunta de diseño.
+'adder', 'mux2', 'flopr', 'imem'. Esta fue una decisión conjunta de diseño.
 
 Complicaciones:
     - Entender el módulo provisto por la cátedra: 'imem', el cual interactuaba con 
@@ -70,6 +68,7 @@ Generalizaciones:
 
 
 Conclusiones:
-    La complejidad de diseñar un datapath no es menor y esto es debido a la gran cantidad de sub-componentes y módulos que a su vez se conforman de módulos aún más pequeños. Sin embargo y aplicando una buena distribución y metodología de desarrollo
-    es posible reducir su dificultad.
-    Esperamos continuar mejorando en laboratorios siguientes.
+    La complejidad de diseñar un datapath no es menor y esto es debido a la gran cantidad 
+de sub-componentes y módulos que a su vez se conforman de módulos aún más pequeños.
+Sin embargo y aplicando una buena distribución y metodología de desarrollo es posible
+reducir su dificultad. Esperamos continuar mejorando en laboratorios siguientes.
