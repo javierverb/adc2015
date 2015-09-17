@@ -4,7 +4,7 @@ Integrantes del grupo:
 
 Dario Molina - 
 Javier Verblud - javier2mil8@gmail.com
-Rogelio Capello -
+Rogelio Capello - 
 Adrian Moyano Reyna - 
 
 Objetivos para este laboratorio:
@@ -67,6 +67,76 @@ Generalizaciones:
                          Ej: si la entidad es un sumador, la lógica sería sumar.
 
     signal -> son una abstracción de software que permite 'conectar' entradas y salidas.
+
+
+Preguntas y respuestas de Elaboraciones:
+
+Elaboración 1:
+Suponga el siguiente programa:
+    addi $0, $zero, 1
+    addi $1, $0, 2
+    addi $2, $1, 2
+    addi $3, $2, 2
+    sw $0, 0($zero)
+    sw $1, 4($zero)
+    sw $2, 8($zero)
+    sw $3, 12($zero)
+    exit: beq $zero $zero exit
+
+Una técnica común para evitar pipeline stalls es el reordenamiento estático. 
+Puede utilizar esta técnica para evitar los stalls?
+Respuesta:
+    No, no es posible pues cada instrucción se ejecuta de manera secuencial y dependiendo de la instrucción anterior:
+    $3, depende de $2, $2, depende de $1
+    y $1 de $0.
+
+Puede evitarlos con instrucciones “nops”? justifique su respuesta
+    Si, si se puede de la siguiente manera:
+
+    addi $0, $zero, 1 - f d e m w
+    addi $1, $0, 2    -   f d * * *
+    addi $1, $0, 2    -     f d * * *
+    addi $1, $0, 2    -       f d e m w
+    addi $2, $1, 2    -         f d * * *
+    addi $2, $1, 2    -           f d * * *
+    addi $2, $1, 2    -             f d e m w
+    addi $3, $2, 2    -               f d * * *
+    addi $3, $2, 2    -                 f d * * *
+    addi $3, $2, 2    -                   f d e m w
+
+    sw $0, 0($zero)   -                     f d e m w 
+    sw $1, 4($zero)   -                       f d e m w
+    sw $2, 8($zero)   -                         f d e m w
+    sw $3, 12($zero)  -                           f d e m w
+
+    exit: beq $zero $zero exit
+
+Elaboración 2:
+
+GHDL es solo una herramienta de simulación muy simple pero existen otras herramientas más complejas que le permiten realizar análisis de tiempos más específicos y rigurosos. 
+Suponga que puede utilizar esas herramientas que le permiten observar que el retardo del datapath sin encausar es de 280ns, mientras que el retardo de la etapa fetch es de 50ns, el de la etapa decode es de 45ns, el de la etapa execute es de 75ns, el de la etapa memory es de 90ns, el de la etapa writeback es de 20ns. 
+
+A) ¿Cuál es el periodo del clock de la versión encausada? 
+
+B) ¿Cuál es la latencia de las
+instrucciones? 
+
+C) ¿Cuál es la ganancia de velocidad teórica con respecto al micro no encauzado?
+
+No-encauzado: 280ns
+Encauzado: fetch_50ns, 
+           decode_45ns, 
+           execute_75ns,
+           memory_90ns,
+           writeback_20ns
+
+Respuestas: 
+    A) El período del clock de la versión encausada es 90ns haciendo referencia
+        al paso que más demora.
+
+    B) Latencia  = cantidad de etapas * instrucción_más_lenta = 5*90ns = 450ns
+    C) Ganancia de velocidad teórica = micro_no_encauzado/instrucción_más_lenta  
+                                     = 280ns/90ns = 3,11ns
 
 
 Conclusiones:
