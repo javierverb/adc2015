@@ -41,4 +41,20 @@ Es deber del programador liberar los recursos.
 */
 input_data_t load_input(char* path, input_data_t container_data);
 
+
+/* Crea un nuevo contenedor de vecinos de tipo triple_data_t */
+neighbors_t neighbors_new(void);
+
+/*
+Dadas las posiciones 'x', 'y' y N como tamaño de una matriz, calcula
+todos los vecinos adyacentes a estas posiciones.
+*/
+neighbors_t get_neighbors(int x, int y, int N, neighbors_t n);
+
+/*
+Para debuggin, esta función imprime TODOS los vecinos de las coordenadas x,y
+dentro de la estructura de tipo neighbors_t.
+*/
+void dump_all_neighbors(neighbors_t n);
+
 #endif
