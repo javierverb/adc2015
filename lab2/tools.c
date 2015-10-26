@@ -23,6 +23,47 @@ struct inputData {
     triple_data_t a_xyt;
 };
 
+/* Getters */
+char get_type_operation(input_data_t input) {
+    return input->type_operation;
+}
+
+int get_N(input) {
+    return input->N;
+}
+
+int get_length_iterations(input_data_t input) {
+    return input->length_iterations;
+}
+
+int get_length_fonts_temperature(input_data_t input) {
+    return input->length_fonts_temperature;
+}
+
+triple_data_t get_array_from_input(input_data_t input) {
+    return input->a_xyt;
+}
+
+triple_data_t get_array_from_neighbors(neighbors_t n) {
+    return n->a_xyt;
+}
+
+int get_x_from_index(triple_data_t a_xyt, i) {
+    return a_xyt[i].x;
+}
+
+int get_y_from_index(triple_data_t a_xyt, i) {
+    return a_xyt[i].y;
+}
+
+float get_t_from_index(triple_data_t a_xyt, i) {
+    return a_xyt[i].t;
+}
+
+int get_total_neighbors(neighbors_t n) {
+    return n->total_neighbors;
+}
+
 triple_data_t triple_data_new(int N) {
     triple_data_t a_xyt = calloc(N, sizeof(struct tripleValues));
     return a_xyt;
@@ -162,7 +203,6 @@ neighbors_t get_neighbors(int x, int y, int N, neighbors_t n) {
     n->a_xyt = a_xyt;
     return n;
 }
-
 
 int main(void) {
     
