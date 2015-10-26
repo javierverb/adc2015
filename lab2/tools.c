@@ -2,7 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "parser_input.h"
+#include "tools.h"
+
+struct neighbors {
+    int total_neighbors;
+    triple_data_t a_xyt;    
+};
 
 struct tripleValues {
     int x;
@@ -53,6 +58,13 @@ void dump_all_values(input_data_t input) {
         y = input->a_xyt[i].y;
         t = input->a_xyt[i].t;
         printf("%d %d %f\n", x,y,t);
+    }
+}
+
+void dump_all_neighbors(neighbors_t n) {
+    for (int i = 0; i < n->total_neighbors; ++i) {
+        printf("%d ", n->a_xyt[i].x);
+        printf("%d\n", n->a_xyt[i].y);
     }
 }
 
@@ -112,13 +124,55 @@ input_data_t load_input(char* path, input_data_t container_data) {
     return container_data;
 }
 
+
+// Para obtener los vecinos de la matriz:
+neighbors_t neighbors_new(void) {
+    neighbors_t n = calloc(1, sizeof(struct neighbors));
+    return n;
+}
+
+neighbors_t get_neighbors(int x, int y, int N, neighbors_t n) {
+    // dado que pueden pasar varias condiciones a la vez, es por el cual
+    // utilizo 4 ifs en vez de un switch case que sólo considera un caso.
+    int MAX_NEIGHBORS = 4;
+    triple_data_t a_xyt = triple_data_new(MAX_NEIGHBORS);
+    int i = 0;
+
+    if (x > 0) {
+        a_xyt[i].x = x-1;
+        a_xyt[i].y = y;
+        i++;
+    }
+    if (x < N-1) {
+        a_xyt[i].x = x+1;
+        a_xyt[i].y = y;
+        i++;
+    }
+    if (y > 0) {
+        a_xyt[i].x = x;
+        a_xyt[i].y = y-1;
+        i++;
+    }
+    if (y < N-1) {
+        a_xyt[i].x = x;
+        a_xyt[i].y = y+1;
+        i++;
+    }
+    n->total_neighbors = i;
+    n->a_xyt = a_xyt;
+    return n;
+}
+
+
 int main(void) {
     
     input_data_t input = NULL;
     input = input_container_new();
     input = load_input("modee_N77_k56_j98.txt", input);
-    dump_all_values(input);
-    input_container_destroy(input);
+    // dump_all_values(input);
+    neighbors_t n = neighbors_new();
+    get_neighbors(6, 8, 10, n);
+    dump_all_neighbors(n);
 
     return EXIT_SUCCESS;
 }

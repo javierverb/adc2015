@@ -1,9 +1,10 @@
-#ifndef __PARSER_INPUT__
-#define __PARSER_INPUT__
+#ifndef _TOOLS_
+#define _TOOLS_
 
 
 typedef struct tripleValues *triple_data_t;
 typedef struct inputData *input_data_t;
+typedef struct neighbors *neighbors_t;
 
 /*
 Crea un arreglo de estructuras nuevo. 
