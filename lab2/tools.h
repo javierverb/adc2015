@@ -59,14 +59,14 @@ void dump_all_neighbors(neighbors_t n);
 
 /* Getters: */
 char get_type_operation(input_data_t input);
-int get_N(input);
+int get_N(input_data_t input);
 int get_length_iterations(input_data_t input);
 int get_length_fonts_temperature(input_data_t input);
 triple_data_t get_array_from_input(input_data_t input);
 triple_data_t get_array_from_neighbors(neighbors_t n);
-int get_x_from_index(triple_data_t a_xyt, i);
-int get_y_from_index(triple_data_t a_xyt, i);
-float get_t_from_index(triple_data_t a_xyt, i);
+int get_x_from_index(triple_data_t a_xyt, int i);
+int get_y_from_index(triple_data_t a_xyt, int i);
+float get_t_from_index(triple_data_t a_xyt, int i);
 int get_total_neighbors(neighbors_t n);
 
 

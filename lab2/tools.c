@@ -6,7 +6,7 @@
 
 struct neighbors {
     int total_neighbors;
-    triple_data_t a_xyt;    
+    triple_data_t a_xyt;  
 };
 
 struct tripleValues {
@@ -28,7 +28,7 @@ char get_type_operation(input_data_t input) {
     return input->type_operation;
 }
 
-int get_N(input) {
+int get_N(input_data_t input) {
     return input->N;
 }
 
@@ -48,15 +48,15 @@ triple_data_t get_array_from_neighbors(neighbors_t n) {
     return n->a_xyt;
 }
 
-int get_x_from_index(triple_data_t a_xyt, i) {
+int get_x_from_index(triple_data_t a_xyt, int i) {
     return a_xyt[i].x;
 }
 
-int get_y_from_index(triple_data_t a_xyt, i) {
+int get_y_from_index(triple_data_t a_xyt, int i) {
     return a_xyt[i].y;
 }
 
-float get_t_from_index(triple_data_t a_xyt, i) {
+float get_t_from_index(triple_data_t a_xyt, int i) {
     return a_xyt[i].t;
 }
 
@@ -209,7 +209,7 @@ int main(void) {
     input_data_t input = NULL;
     input = input_container_new();
     input = load_input("modee_N77_k56_j98.txt", input);
-    // dump_all_values(input);
+    dump_all_values(input);
     neighbors_t n = neighbors_new();
     get_neighbors(6, 8, 10, n);
     dump_all_neighbors(n);
