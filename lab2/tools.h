@@ -24,7 +24,7 @@ input_data_t input_container_new();
 Dada una posición i del arreglo y sus tres valores, 
 los añade en la estructura
 */
-void triple_data_add(triple_data_t a_xyt, int i, int x, int y, float t);
+void triple_data_add(triple_data_t a_xyt, int i, int x, int y, double t);
 
 /* 
 Para debuggin, esta función imprime TODOS los valores
@@ -66,7 +66,7 @@ triple_data_t get_array_from_input(input_data_t input);
 triple_data_t get_array_from_neighbors(neighbors_t n);
 int get_x_from_index(triple_data_t a_xyt, int i);
 int get_y_from_index(triple_data_t a_xyt, int i);
-float get_t_from_index(triple_data_t a_xyt, int i);
+double get_t_from_index(triple_data_t a_xyt, int i);
 int get_total_neighbors(neighbors_t n);
 
 

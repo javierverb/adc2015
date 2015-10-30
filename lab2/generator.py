@@ -33,17 +33,17 @@ def main():
         j = get_value_int("j")
     else: 
         m = str(random.choice(list_modes))
-        N = str(random.randint(6, 100))
+        N = str(random.randint(2, 100))
         k = str(random.randint(1, 100))
-        j = str(random.randint(1, 100))
+        j = str(random.randint(1, 20))
 
 
     filename = "mode%s_N%s_k%s_j%s.txt" % (m, N, k, j)
 
     output = m+"\n"+N+"\n"+k+"\n"+j+"\n"
     for i in range(int(j)):
-        output += str(random.randint(0, 100)) + " "
-        output += str(random.randint(0, 100)) + " "
+        output += str(random.randint(0, int(N)-1)) + " "
+        output += str(random.randint(0, int(N)-1)) + " "
         output += str(random.random()*10) + "\n"
 
     f = open(filename, "w")
