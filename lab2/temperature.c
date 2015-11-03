@@ -37,9 +37,9 @@ int main(void) {
 
 
     double *T = NULL; // T
-    double *T_extra = NULL; // finalmente será T = T'
+    double *T_prime = NULL; // finalmente será T = T'
 
-    size_t datasize = sizeof(float) * (N*N);
+    size_t datasize = sizeof(double) * (N*N);
     T = (double*) malloc (datasize);
 
     /* Inicio la matriz con ceros */
@@ -73,7 +73,6 @@ int main(void) {
     clGetPlatformIDs(platformCount, platforms, NULL);
     
     /* Get devices */
-
     status = clGetDeviceIDs(platforms[0], CL_DEVICE_TYPE_ALL, 0, NULL, &deviceCount);
     devices = (cl_device_id*) malloc(sizeof(cl_device_id) * deviceCount);
     clGetDeviceIDs(platforms[0], CL_DEVICE_TYPE_ALL, deviceCount, devices, NULL);
@@ -101,9 +100,49 @@ int main(void) {
     status = clGetDeviceIDs(platforms[0], CL_DEVICE_TYPE_ALL, performIndex, devices, NULL);
 
     /* Create the context */
-    cl_context context = clCreateContext(NULL, deviceCount, devices, NULL, NULL, &status);
+    cl_context context = clCreateContext(NULL, deviceCount, devices,
+                                             NULL, NULL, &status);
 
-    // la parte no trivial empieza desde acá :v
+    /* Create a comand queue */
+    cl_command_queue cmd_queue = clCreateCommandQueue(context, devices[0], 0, 
+                                                        &status);
 
+    
+    /* Need a two buffer for read and write */
+    cl_mem buffer_input_T, buffer_middle_T, buffer_output_T;
+    buffer_T = clCreateBuffer(context, CL_MEM_READ_WRITE, datasize,
+       NULL, &status);
+    
+    buffer_T_prime = clCreateBuffer(context, CL_MEM_READ_WRITE, datasize,
+       NULL, &status);
+
+    buffer_output_T = clCreateBuffer(context, CL_MEM_READ_WRITE, datasize,
+       NULL, &status);
+
+    /* Send (write) data to kernel */
+    status = clEnqueueWriteBuffer(cmd_queue, buffer_T, CL_TRUE,
+        0, datasize, T, 0, NULL, NULL);
+
+    status = clEnqueueWriteBuffer(cmd_queue, buffer_T_prime, CL_TRUE,
+        0, datasize, T_prime, 0, NULL, NULL);
+
+
+    const char* program_source = readSource("temperature.cl");
+    cl_program program = clCreateProgramWithSource(context, 1,
+    &program_source, NULL, &status);
+
+    /* Build (compile) the program for the device */
+    status = clBuildProgram(program, deviceCount, devices,
+        NULL, NULL, NULL);
+
+    /* Create a kernel from the given program */
+    clCreateKernel(program, "temperature", &status);
+
+
+    /*  */
+    status = clSetKernelArg(kernel, 0, sizeof(int), &N);
+    status = clSetKernelArg(kernel, 1, sizeof(int), &k);
+
+    
     return EXIT_SUCCESS;
 }
