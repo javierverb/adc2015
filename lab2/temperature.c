@@ -2,21 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+// Custom includes
 #include "helpers.h"
 #include "tools.h"
 
-
-int x_from_i(int i, int N) {
-    /* Dado el índice del arreglo i, me devuelve la coordenada
-    x de una matriz N*N */
-    return i/N;
-}
-
-int y_from_i(int i, N) {
-    /* Dado el índice del arreglo i, me devuelve la coordenada
-    y de una matriz N*N */
-    return i%N;
-}
+// OpenCL includes
+#include <CL/cl.h>
 
 int main(void) {
     
@@ -33,6 +24,8 @@ int main(void) {
 
     int N = get_N(input_container);
     int length_fonts_temperature = get_length_fonts_temperature(input_container);
+    int length_iterations = get_length_iterations(input_container);
+
     triple_data_t a_xyt = get_array_from_input(input_container);
 
 
@@ -109,20 +102,23 @@ int main(void) {
 
     
     /* Need a two buffer for read and write */
-    cl_mem buffer_input_T, buffer_middle_T, buffer_output_T;
+    cl_mem buffer_T, buffer_middle_T, buffer_T_prime;
     buffer_T = clCreateBuffer(context, CL_MEM_READ_WRITE, datasize,
        NULL, &status);
     
-    buffer_T_prime = clCreateBuffer(context, CL_MEM_READ_WRITE, datasize,
+    buffer_middle_T = clCreateBuffer(context, CL_MEM_READ_WRITE, datasize,
        NULL, &status);
 
-    buffer_output_T = clCreateBuffer(context, CL_MEM_READ_WRITE, datasize,
+    buffer_T_prime = clCreateBuffer(context, CL_MEM_READ_WRITE, datasize,
        NULL, &status);
 
     /* Send (write) data to kernel */
     status = clEnqueueWriteBuffer(cmd_queue, buffer_T, CL_TRUE,
         0, datasize, T, 0, NULL, NULL);
 
+    // realmente necesitamos T_prime?
+
+    /* A matrix output with name 'T_prime' */
     status = clEnqueueWriteBuffer(cmd_queue, buffer_T_prime, CL_TRUE,
         0, datasize, T_prime, 0, NULL, NULL);
 
@@ -139,10 +135,51 @@ int main(void) {
     clCreateKernel(program, "temperature", &status);
 
 
-    /*  */
+    /* Kernel args */
     status = clSetKernelArg(kernel, 0, sizeof(int), &N);
-    status = clSetKernelArg(kernel, 1, sizeof(int), &k);
+    status = clSetKernelArg(kernel, 1, sizeof(int), &length_fonts_temperature);
+    status = clSetKernelArg(kernel, 2, sizeof(int), &length_iterations);
+    status = clSetKernelArg(kernel, 3, sizeof(cl_mem), &buffer_T);
+    status = clSetKernelArg(kernel, 4, sizeof(cl_mem), &buffer_T_prime);
+    // status = clSetKernelArg(kernel, 5, sizeof(cl_mem), &buffer_middle_T);
+    
+    /* Define an index space (global work size) of work item for execution
+    A work group size (local work group size) is not required, but can be used */
 
+    size_t globalWorkSize[2];
+    globalWorkSize[0] = N;
+    globalWorkSize[1] = N;
+
+    /* Execute the kernel for execution */
+    status = clEnqueueNDRangeKernel(cmd_queue, kernel, 2, NULL,
+        globalWorkSize, NULL, 0, NULL, NULL);
+
+    // Read the device output buffer to the host output matrix
+    clEnqueueReadBuffer(cmd_queue, buffer_T_prime, CL_TRUE, 0,
+        datasize, T_prime, 0, NULL, NULL);
+
+    printf("\n\nMatriz T'\n");
+    for(int i = 0; i < N*N; ++i) {
+        printf("%.2f ", T_prime[i]);
+        if(((i + 1) % N) == 0){
+            printf("\n");
+        }
+    }
+
+    /* Free OpenCl resources */
+    clReleaseKernel(kernel);
+    clReleaseProgram(program);
+    clReleaseCommandQueue(cmd_queue);
+    clReleaseMemObject(buffer_T);
+    // clReleaseMemObject(buffer_middle_T); dude..
+    clReleaseMemObject(buffer_T_prime);
+    clReleaseContext(context);
+
+    /* Free host resources */
+    free(T);
+    free(T_prime);
+    free(platforms);
+    free(devices);
     
     return EXIT_SUCCESS;
 }
