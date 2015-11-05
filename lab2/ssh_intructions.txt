@@ -1,0 +1,6 @@
+ssh adc201523@mini.famaf.unc.edu.ar
+password: 03573422914
+
+scp -r lab2/ adc201523@mini.famaf.unc.edu.ar:
+
+g++ helpers.c tools.c temperature.c -lOpenCL

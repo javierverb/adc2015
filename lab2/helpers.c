@@ -7,7 +7,7 @@
 // This function reads in a text file and stores it as a char pointer
 char* readSource(char* kernelPath) {
 
-   cl_int status;
+   int status;
    FILE *fp;
    char *source;
    long int size;

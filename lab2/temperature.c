@@ -2,12 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Custom includes
-#include "helpers.h"
-#include "tools.h"
-
 // OpenCL includes
 #include <CL/cl.h>
+
+// Custom includes
+#include "tools.h"
+#include "helpers.h"
+
 
 int main(void) {
     
@@ -34,6 +35,7 @@ int main(void) {
 
     size_t datasize = sizeof(double) * (N*N);
     T = (double*) malloc (datasize);
+    T_prime = (double*) malloc (datasize);
 
     /* Inicio la matriz con ceros */
     for (int i = 0; i < N*N; ++i) {
@@ -71,7 +73,8 @@ int main(void) {
     clGetDeviceIDs(platforms[0], CL_DEVICE_TYPE_ALL, deviceCount, devices, NULL);
 
     /* Calculating perfomance */
-    for (j = 0; j < deviceCount; j++) {
+    int performIndex = 0;
+    for (int j = 0; j < deviceCount; j++) {
 
         /* Max Compute Units */
         clGetDeviceInfo(devices[j], CL_DEVICE_MAX_COMPUTE_UNITS,
@@ -132,7 +135,7 @@ int main(void) {
         NULL, NULL, NULL);
 
     /* Create a kernel from the given program */
-    clCreateKernel(program, "temperature", &status);
+    cl_kernel kernel = clCreateKernel(program, "temperature", &status);
 
 
     /* Kernel args */

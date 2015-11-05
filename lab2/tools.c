@@ -4,15 +4,16 @@
 
 #include "tools.h"
 
-struct neighbors {
-    int total_neighbors;
-    triple_data_t a_xyt;  
-};
 
 struct tripleValues {
     int x;
     int y;
     double t;
+};
+
+struct neighbors {
+    int total_neighbors;
+    triple_data_t a_xyt;  
 };
 
 struct inputData {
@@ -65,12 +66,12 @@ int get_total_neighbors(neighbors_t n) {
 }
 
 triple_data_t triple_data_new(int N) {
-    triple_data_t a_xyt = calloc(N, sizeof(struct tripleValues));
+    triple_data_t a_xyt = new tripleValues[N];
     return a_xyt;
 }
 
 input_data_t input_container_new() {
-    input_data_t container_data = calloc(1, sizeof(struct inputData));
+    input_data_t container_data =  new inputData(); //calloc(1, sizeof(struct inputData));
     return container_data;
 }
 
@@ -168,7 +169,7 @@ input_data_t load_input(char* path, input_data_t container_data) {
 
 // Para obtener los vecinos de la matriz:
 neighbors_t neighbors_new(void) {
-    neighbors_t n = calloc(1, sizeof(struct neighbors));
+    neighbors_t n = new neighbors();
     return n;
 }
 
@@ -203,16 +204,3 @@ neighbors_t get_neighbors(int x, int y, int N, neighbors_t n) {
     n->a_xyt = a_xyt;
     return n;
 }
-
-// int main(void) {
-    
-//     input_data_t input = NULL;
-//     input = input_container_new();
-//     input = load_input("modee_N77_k56_j98.txt", input);
-//     dump_all_values(input);
-//     neighbors_t n = neighbors_new();
-//     get_neighbors(6, 8, 10, n);
-//     dump_all_neighbors(n);
-
-//     return EXIT_SUCCESS;
-// }
