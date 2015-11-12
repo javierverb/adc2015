@@ -12,9 +12,9 @@ int main(int argc, char** argv) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
     //leemos los datos n, k, j por entrada standar y los guada en data_array
-    input_data(data_array, rank, n, k, j);
+    input_data(data_array, &rank, &n, &k, &j);
     //leemos los datos x, y, t por entrada standar y los guarda en data_temp
-    input_data_temp(data_temp, rank, x, y, t);
+    input_data_temp(data_temp, &rank, &x, &y, &t);
 
 
     //ajustamos el tamaño maximo de la matriz para que sea multiplo de comm_size <----------------------------------------ver!!!
@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
     MPI_Bcast(data_array[1], 1, MPI_INT, 0, MPI_COMM_WORLD);
     MPI_Bcast(data_array[2], 1, MPI_INT, 0, MPI_COMM_WORLD);
     //enviamos los datos de la temperatura desde el ROOT a todos los procesos
-    MPI_Bcast(data_temp, j, MPI_FLOAT, 0, MPI_COMM_WORLD);
+    MPI_Bcast(data_temp, &j, MPI_FLOAT, 0, MPI_COMM_WORLD);
     
     //CONTINUARAAAA..........!!!! fap fap 
 
