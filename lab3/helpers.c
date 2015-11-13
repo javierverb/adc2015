@@ -1,25 +1,47 @@
 #include <stdio.h>
-#include <mpi.h>
+#include <stdlib.h>
 
-static void input_data(int data_array[], int *rank, int *n, int *k, int *j){
-    if(rank==0){
-        scanf("ingrese el tamaño de la matriz\n",n);
-        scanf("ingrese la cantidad de iteraciones\n",k);
-        scanf("ingrese la cantidad de puntos de calor\n",j);
-        data_array[0]=n;
-        data_array[1]=k;
-        data_array[2]=j;
+#include "helpers.h"
+
+int get_total_rows_to_process(int N, int comm_sz) {
+    return N/comm_sz;
+}
+
+void init_matrix(int N, double T[][N]) {
+    int i, j;
+    for (i = 0; i < N; ++i) {
+        for (j = 0; j < N; ++j) {
+            T[i][j] = 0;
+        }
     }
 }
 
-static void input_data_temp(int data_temp, int *rank, float *x, float *y, float *t){
-    if(rank==0){
-        printf("ingrese los valores x y t");
-        int i=0;
-        while(scanf("%f %f %f",&x,&y,&t)!=EOF){
-            data_temp[i*3]=x;
-            data_temp[(i+1)*3]=y;
-            data_temp[(i+2)*3]=t;
+void print_matrix(int N, double T[][N]) {
+    int i, j;
+    for (i = 0; i < N; ++i) {
+        printf("\n");
+        for (j = 0; j < N; ++j) {
+            printf("%.2f", T[i][j]);
         }
+    }
+    printf("\n");
+}
+
+void reset_sources(int length_fonts_temperature, int my_pid, int N,
+                   double T[][N], double *a_xyt, 
+                   int comm_sz) {
+    int i, x, y = 0;
+    double t;
+    printf("my_pid: %d\n", my_pid);
+    int rows_to_process = get_total_rows_to_process(N, comm_sz);
+    while (i < length_fonts_temperature) {
+        if (my_pid * rows_to_process <= a_xyt[i + INDEX_X] < 
+            (my_pid+1) * rows_to_process) {
+            x = a_xyt[i + INDEX_X];
+            y = a_xyt[i + INDEX_Y];
+            t = a_xyt[i + INDEX_T];
+            T[x][y] = t;
+        }
+        i = i + DATA_LENGHT;
     }
 }

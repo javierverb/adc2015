@@ -109,8 +109,8 @@ int main(void) {
     buffer_T = clCreateBuffer(context, CL_MEM_READ_WRITE, datasize,
        NULL, &status);
     
-    buffer_middle_T = clCreateBuffer(context, CL_MEM_READ_WRITE, datasize,
-       NULL, &status);
+    // buffer_middle_T = clCreateBuffer(context, CL_MEM_READ_WRITE, datasize,
+    //    NULL, &status);
 
     buffer_T_prime = clCreateBuffer(context, CL_MEM_READ_WRITE, datasize,
        NULL, &status);
@@ -139,11 +139,11 @@ int main(void) {
 
 
     /* Kernel args */
-    status = clSetKernelArg(kernel, 0, sizeof(int), &N);
-    status = clSetKernelArg(kernel, 1, sizeof(int), &length_fonts_temperature);
-    status = clSetKernelArg(kernel, 2, sizeof(int), &length_iterations);
-    status = clSetKernelArg(kernel, 3, sizeof(cl_mem), &buffer_T);
-    status = clSetKernelArg(kernel, 4, sizeof(cl_mem), &buffer_T_prime);
+    status = clSetKernelArg(kernel, 0, sizeof(cl_mem), &buffer_T);
+    status = clSetKernelArg(kernel, 1, sizeof(cl_mem), &buffer_T_prime);
+    status = clSetKernelArg(kernel, 2, sizeof(int), &N);
+    status = clSetKernelArg(kernel, 3, sizeof(int), &length_fonts_temperature);
+    status = clSetKernelArg(kernel, 4, sizeof(int), &length_iterations);
     // status = clSetKernelArg(kernel, 5, sizeof(cl_mem), &buffer_middle_T);
     
     /* Define an index space (global work size) of work item for execution
@@ -158,7 +158,7 @@ int main(void) {
         globalWorkSize, NULL, 0, NULL, NULL);
 
     // Read the device output buffer to the host output matrix
-    clEnqueueReadBuffer(cmd_queue, buffer_T_prime, CL_TRUE, 0,
+    status = clEnqueueReadBuffer(cmd_queue, buffer_T_prime, CL_TRUE, 0,
         datasize, T_prime, 0, NULL, NULL);
 
     printf("\n\nMatriz T'\n");

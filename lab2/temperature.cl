@@ -26,9 +26,9 @@ int max(int a, int b) {
     return max;
 }
 
-__kernel void temperature(__global double T, __global double T_prime,
-                __private int N, __private int length_fonts_temperature,
-                __private int length_iterations) {
+__kernel void temperature(__global double *T, __global double *T_prime,
+                __global int N, __global int length_fonts_temperature,
+                __global int length_iterations) {
 
 
     /* Get the work-item’s unique ID */
@@ -81,10 +81,8 @@ __kernel void temperature(__global double T, __global double T_prime,
             index_neighbor = array_neighbors[i];
             // asumimos que siempre nos quedamos con la temperatura más alta
             // INCOMPLETO: hay que swapear? no lo sé, puedo esperar...me tengo que ir a sistemas
-            T[index_neighbor] = max(average, T[index_neighbor]);
+            T_prime[index_neighbor] = max(average, T[index_neighbor]);
         }
         i++;
     }
-
-
 }
