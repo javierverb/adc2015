@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+<<<<<<< HEAD
 #include "helpers.h"
 
 int get_total_rows_to_process(int N, int comm_sz) {
