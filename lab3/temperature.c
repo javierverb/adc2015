@@ -9,6 +9,7 @@ int main(void) {
 
     int u __attribute__((unused)); // para ignorar la salida de los scanf
     int N, length_iterations, length_fonts_temperature;
+    int old_N;
     int x, y;
     double t;
 
@@ -27,6 +28,7 @@ int main(void) {
         u = scanf("%d", &length_fonts_temperature);
 
         /* Relleno el tamaño de la matriz con tantas filas como procesos */
+        old_N = N;
         if (N % comm_sz != 0) {
             N += comm_sz - N % comm_sz;
         }
@@ -43,7 +45,6 @@ int main(void) {
         i = i + DATA_LENGHT;
     }
 
-    
     /* Comparto los datos con todos los procesos */
     MPI_Bcast(&N, 1, MPI_INT, _ROOT, MPI_COMM_WORLD);
     MPI_Bcast(&length_iterations, 1, MPI_INT, _ROOT, MPI_COMM_WORLD);
@@ -51,14 +52,17 @@ int main(void) {
     // puntos de calor
     MPI_Bcast(&a_xyt, length_fonts_temperature, MPI_INT, _ROOT, MPI_COMM_WORLD);
 
-    double T[N][N];
-    init_matrix(N, T);
-    /* Creamos la matriz inicial */
 
-    reset_sources(length_fonts_temperature, my_pid, N, T, 
+    /* Cada proceso tiene su partición de la matriz */
+    unsigned int partition_matrix_size = (N*N) / comm_sz;
+    double *T = calloc(partition_matrix_size, sizeof (double));
+
+    /* Creamos la matriz inicial */
+    reset_sources(length_fonts_temperature, my_pid, partition_matrix_size, T, 
               a_xyt, comm_sz);
-    if (my_pid == 0) {
-        print_matrix(N, T);
+    
+    if (my_pid == _ROOT) {
+        print_matrix(old_N, T);
     }
 
     MPI_Finalize();

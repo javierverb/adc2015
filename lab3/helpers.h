@@ -7,10 +7,8 @@
 #define INDEX_Y 1
 #define INDEX_T 2
 
-void init_matrix(int N, double T[][N]);
-
 void reset_sources(int length_fonts_temperature, int my_pid, int N,
-                   double T[][N], double *a_xyt, 
+                   double *T, double *a_xyt, 
                    int comm_sz);
 
 #endif
