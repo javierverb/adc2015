@@ -11,4 +11,6 @@ void reset_sources(int length_fonts_temperature, int my_pid, int N,
                    double *T, double *a_xyt, 
                    int comm_sz);
 
+void construct_t_prime();
+
 #endif

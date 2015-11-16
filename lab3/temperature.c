@@ -61,6 +61,16 @@ int main(void) {
     reset_sources(length_fonts_temperature, my_pid, partition_matrix_size, T, 
               a_xyt, comm_sz);
     
+    /* Todos los procesos deben haber finalizado su inicialización */
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    /* Realizo las transformaciones de matriz */
+    int i;
+    for (i = 0; i < length_iterations; ++i) {
+        construct_t_prime();
+    }
+
+    
     if (my_pid == _ROOT) {
         print_matrix(old_N, T);
     }
