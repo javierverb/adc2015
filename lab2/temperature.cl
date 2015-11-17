@@ -45,6 +45,7 @@ __kernel void temperature(__global double *T, __global double *T_prime,
 
     while (i < length_iterations) {
         index = get_index_from_coordinate(x, y, N);
+        // asumo que las fuentes de calor son > 0 
         if (T[index] > 0) {
             // calculate prom
             sum_temperature = T[index];

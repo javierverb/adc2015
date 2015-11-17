@@ -11,6 +11,8 @@ void reset_sources(int length_fonts_temperature, int my_pid, int N,
                    double *T, double *a_xyt, 
                    int comm_sz);
 
-void construct_t_prime();
+void construct_t_prime(int N, int my_pid, double *T, int length_rows);
+int get_index_from_coordinate(int x, int y, int N);
+
 
 #endif

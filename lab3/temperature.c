@@ -36,13 +36,16 @@ int main(void) {
     
     /* Arreglo de coordenadas x,y con su respectiva temperatura */
     double a_xyt[length_fonts_temperature*DATA_LENGHT];
-    int i = 0;
-    while (i < length_fonts_temperature) {
-        u = scanf("%d %d %lf", &x, &y, &t);
-        a_xyt[i + INDEX_X] = x;
-        a_xyt[i + INDEX_Y] = y;
-        a_xyt[i + INDEX_T] = t;
-        i = i + DATA_LENGHT;
+
+    if (my_pid == _ROOT) {
+        int i = 0;
+        while (i < length_fonts_temperature*DATA_LENGHT) {
+            u = scanf("%d %d %lf", &x, &y, &t);
+            a_xyt[i + INDEX_X] = x;
+            a_xyt[i + INDEX_Y] = y;
+            a_xyt[i + INDEX_T] = t;
+            i = i + DATA_LENGHT;
+        }
     }
 
     /* Comparto los datos con todos los procesos */
@@ -67,9 +70,8 @@ int main(void) {
     /* Realizo las transformaciones de matriz */
     int i;
     for (i = 0; i < length_iterations; ++i) {
-        construct_t_prime();
+        construct_t_prime(N, my_pid, T, old_N);
     }
-
     
     if (my_pid == _ROOT) {
         print_matrix(old_N, T);
