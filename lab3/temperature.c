@@ -59,6 +59,10 @@ int main(void) {
     /* Cada proceso tiene su partición de la matriz */
     unsigned int partition_matrix_size = (N*N) / comm_sz;
     double *T = calloc(partition_matrix_size, sizeof (double));
+    
+    /* Espacio para mis filas vecinas */
+    double *top_row = calloc(partition_matrix_size, sizeof(double));
+    double *bottom_row = calloc(partition_matrix_size, sizeof(double));
 
     /* Creamos la matriz inicial */
     reset_sources(length_fonts_temperature, my_pid, partition_matrix_size, T, 
@@ -67,16 +71,60 @@ int main(void) {
     /* Todos los procesos deben haber finalizado su inicialización */
     MPI_Barrier(MPI_COMM_WORLD);
 
-    /* Realizo las transformaciones de matriz */
-    int i;
-    for (i = 0; i < length_iterations; ++i) {
-        construct_t_prime(N, my_pid, T, old_N);
-    }
-    
-    if (my_pid == _ROOT) {
-        print_matrix(old_N, T);
+// ------>
+    /* Comienza el procesamiento de las fuentes de calor */
+    int j = 0;
+    while (j < length_iterations) {
+        
+        /* Si no soy la primera fila o estoy siendo procesado por el primer proceso
+        puedo recibir datos desde la fila de arriba */
+        if (my_pid != _ROOT) {
+            MPI_Send (T, N, MPI_DOUBLE, my_pid - 1, _ROOT, MPI_COMM_WORLD);
+            MPI_Recv (top_row, matrix_size, MPI_DOUBLE, my_pid - 1, 0,
+                        MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        }
+
+        /* Process comm_sz - 1 don't receive a row from a process "below", neither
+        it should send its last row */
+        if (my_pid != comm_sz - 1) {
+            MPI_Send (T, N, MPI_DOUBLE, my_pid + 1, 0, MPI_COMM_WORLD);
+            MPI_Recv (bottom_row, N, MPI_DOUBLE, my_pid + 1, 0,
+                      MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        }
+
+        /* Recursive formula applied to modify the matrix */
+        construct_t_prime(matrix, matrix_size, comm_sz, my_pid, top_row,
+                      bottom_row);
+
+        /* Every time the matrix is transformed, all heat sources should
+           keep its temperature */
+        reset_sources(length_fonts_temperature, my_pid, 
+                      rows_to_process, T, a_xyt, comm_sz);
+        j++;
     }
 
+    /* Process 0 is in charge of printing the whole matrix to STDOUT,
+     thus it should print its fragment of the matrix, and all other
+     processes should send its fragment to process 0 */
+    if (my_pid == 0) {
+        /* Receive fragments from other processes & print */
+        for (j = 1; j < comm_sz; j++) {
+            MPI_Recv (matrix, fragment_size, MPI_FLOAT, j, 0, MPI_COMM_WORLD,
+                        MPI_STATUS_IGNORE);
+        }
+    } else {
+        /* Send fragment to process 0*/
+        MPI_Send (matrix, fragment_size, MPI_FLOAT, 0, 0, MPI_COMM_WORLD);
+    }
+
+    /* En este punto todos los procesos terminaron de procesar sus fragmentos */
+    MPI_Barrier (MPI_COMM_WORLD);
+
     MPI_Finalize();
+    /* Libero los recursos alocados */
+    free (T);
+    free (top_row);
+    free (bottom_row);
+
     return EXIT_SUCCESS;
 }
