@@ -51,5 +51,55 @@ void reset_sources(int length_fonts_temperature, int my_pid, int rows_to_process
     }
 }
 
-void construct_t_prime(matrix, matrix_size, comm_sz, my_pid, top_row,
-                      bottom_row);
+void construct_t_prime(double *T, int N, int comm_sz, int my_pid, 
+                        double *neightbour_top, double *neightbour_bot) {
+
+    float accum = 0, *temp = NULL;
+    int row = 0, col = 0, operands = 0, fragment_size = 0;
+
+    /* Each process work over a fragment of the whole matrix,
+     the matrix is partitioned on equally-sized portions */
+    fragment_size = (N * N) / comm_sz;
+
+    temp = (float *) calloc (fragment_size, sizeof (float));
+
+    for (row = 0; row < N / comm_sz; row++) {
+        for (col = 0; col < N; col++) {
+            accum = T[row * N + col];
+            operands = 1;
+            if (row != 0) {
+                accum += T[(row - 1) * N + col];
+                operands++;
+            }
+            if (row != N / comm_sz - 1) {
+                accum += T[(row + 1) * N + col];
+                operands++;
+            }
+            if (col != 0) {
+                accum += T[row * N + col - 1];
+                operands++;
+            }
+            if (col != N - 1) {
+                accum += T[row * N + col + 1];
+                operands++;
+            }
+            if (row == 0 && my_pid != 0) {
+                accum += neightbour_top[col];
+                operands++;
+            }
+            if (row == N / comm_sz - 1 && my_pid != comm_sz - 1) {
+                accum += neightbour_bot[col];
+                operands++;
+            }
+            temp[row * N + col] = accum / operands;
+        }
+    }
+
+    /* Replace old matrix values with the new ones */
+    for (row = 0; row < N / comm_sz; row++) {
+        for (col = 0; col < N; col++) {
+            T[row * N + col] = temp[row * N + col];
+        }
+    }
+  free (temp);
+}

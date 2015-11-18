@@ -47,6 +47,7 @@ int main(void) {
             i = i + DATA_LENGHT;
         }
     }
+    int rows_to_process = N*N/comm_sz;
 
     /* Comparto los datos con todos los procesos */
     MPI_Bcast(&N, 1, MPI_INT, _ROOT, MPI_COMM_WORLD);
@@ -61,8 +62,8 @@ int main(void) {
     double *T = calloc(partition_matrix_size, sizeof (double));
     
     /* Espacio para mis filas vecinas */
-    double *top_row = calloc(partition_matrix_size, sizeof(double));
-    double *bottom_row = calloc(partition_matrix_size, sizeof(double));
+    double *neightbour_top = calloc(partition_matrix_size, sizeof(double));
+    double *neightbour_bot = calloc(partition_matrix_size, sizeof(double));
 
     /* Creamos la matriz inicial */
     reset_sources(length_fonts_temperature, my_pid, partition_matrix_size, T, 
@@ -79,22 +80,22 @@ int main(void) {
         /* Si no soy la primera fila o estoy siendo procesado por el primer proceso
         puedo recibir datos desde la fila de arriba */
         if (my_pid != _ROOT) {
-            MPI_Send (T, N, MPI_DOUBLE, my_pid - 1, _ROOT, MPI_COMM_WORLD);
-            MPI_Recv (top_row, matrix_size, MPI_DOUBLE, my_pid - 1, 0,
+            MPI_Send(T, N, MPI_DOUBLE, my_pid - 1, _ROOT, MPI_COMM_WORLD);
+            MPI_Recv (neightbour_top, N, MPI_DOUBLE, my_pid - 1, 0,
                         MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         }
 
         /* Process comm_sz - 1 don't receive a row from a process "below", neither
         it should send its last row */
         if (my_pid != comm_sz - 1) {
-            MPI_Send (T, N, MPI_DOUBLE, my_pid + 1, 0, MPI_COMM_WORLD);
-            MPI_Recv (bottom_row, N, MPI_DOUBLE, my_pid + 1, 0,
+            MPI_Send(T, N, MPI_DOUBLE, my_pid + 1, 0, MPI_COMM_WORLD);
+            MPI_Recv(neightbour_bot, N, MPI_DOUBLE, my_pid + 1, 0,
                       MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         }
 
         /* Recursive formula applied to modify the matrix */
-        construct_t_prime(matrix, matrix_size, comm_sz, my_pid, top_row,
-                      bottom_row);
+        construct_t_prime(T, N, comm_sz, my_pid, neightbour_top,
+                            neightbour_bot);
 
         /* Every time the matrix is transformed, all heat sources should
            keep its temperature */
@@ -106,25 +107,26 @@ int main(void) {
     /* Process 0 is in charge of printing the whole matrix to STDOUT,
      thus it should print its fragment of the matrix, and all other
      processes should send its fragment to process 0 */
-    if (my_pid == 0) {
+    if (my_pid == _ROOT) {
         /* Receive fragments from other processes & print */
         for (j = 1; j < comm_sz; j++) {
-            MPI_Recv (matrix, fragment_size, MPI_FLOAT, j, 0, MPI_COMM_WORLD,
-                        MPI_STATUS_IGNORE);
+            MPI_Recv(T, partition_matrix_size, MPI_DOUBLE, j, 
+                     _ROOT, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         }
+        print_matrix(old_N, T);
     } else {
         /* Send fragment to process 0*/
-        MPI_Send (matrix, fragment_size, MPI_FLOAT, 0, 0, MPI_COMM_WORLD);
+        MPI_Send(T, partition_matrix_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
     }
 
     /* En este punto todos los procesos terminaron de procesar sus fragmentos */
-    MPI_Barrier (MPI_COMM_WORLD);
+    MPI_Barrier(MPI_COMM_WORLD);
 
     MPI_Finalize();
     /* Libero los recursos alocados */
-    free (T);
-    free (top_row);
-    free (bottom_row);
+    free(T);
+    free(neightbour_top);
+    free(neightbour_bot);
 
     return EXIT_SUCCESS;
 }
