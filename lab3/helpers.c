@@ -1,11 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include "helpers.h"
+#include "mpi.h"
 
-int get_total_rows_to_process(int N, int comm_sz) {
-    return N/comm_sz;
-}
 
 int get_index_from_coordinate(int x, int y, int N) {
     /* Convert pair x,y to index for some array */
@@ -32,74 +31,122 @@ void print_matrix(int N, double *T) {
         }
         printf("%.2f ", T[i]);
     }
+    printf("\n");
 }
 
-void reset_sources(int length_fonts_temperature, int my_pid, int rows_to_process,
-                   double *T, double *a_xyt, 
-                   int comm_sz) {
-    int i, x, y = 0;
-    double t;
-    while (i < length_fonts_temperature*DATA_LENGHT) {
-        if (my_pid * rows_to_process <= a_xyt[i + INDEX_X] < 
-            (my_pid+1) * rows_to_process) {
-            x = a_xyt[i + INDEX_X];
-            y = a_xyt[i + INDEX_Y];
-            t = a_xyt[i + INDEX_T];
-            T[x*i +y] = t;
-        }
-        i = i + DATA_LENGHT;
+
+void share_limit_rows(int my_pid, int partition_matrix_size, int comm_sz, int N,
+                        double *T, double *top_row, double *bottom_row) {
+
+    /* Si no soy la raíz, tengo filas por arriba */
+    if (my_pid != _ROOT) {
+        MPI_Send(T, partition_matrix_size, MPI_DOUBLE, 
+                my_pid-1, 0, MPI_COMM_WORLD);
+
+        // recibo la fila superior de mi vecino de abajo
+        MPI_Recv(top_row, N, MPI_DOUBLE, 
+                    my_pid-1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    }
+
+    /* Si no soy el último proceso, tengo filas por debajo */
+    if (my_pid != comm_sz - 1) {
+        MPI_Send(bottom_row, N, MPI_DOUBLE, 
+                    my_pid + 1, 0, MPI_COMM_WORLD);
+        MPI_Recv(T, partition_matrix_size, MPI_DOUBLE, my_pid+1, 0,
+                    MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     }
 }
 
-void construct_t_prime(double *T, int N, int comm_sz, int my_pid, 
-                        double *neightbour_top, double *neightbour_bot) {
+void distribute_data(int my_pid, double *T, int partition_matrix_size, int comm_sz) {
+    if (my_pid == _ROOT) {
+        int child_id;
+        /* Recibo fragmentos de otros procesos */
+        for (child_id = 1; child_id < comm_sz; child_id++) {
+            MPI_Recv(T, partition_matrix_size, MPI_DOUBLE, 
+                        child_id, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        }
+    } 
+    else {
+        /* Envío a la raíz */
+        MPI_Send(T, partition_matrix_size, MPI_DOUBLE, _ROOT, 0, MPI_COMM_WORLD);
+    }
+}
 
-    float accum = 0, *temp = NULL;
-    int row = 0, col = 0, operands = 0, fragment_size = 0;
+void reset_sources(int my_pid, int k, int N, int comm_sz,
+                    double *a_xyt, double *partition_T,
+                    double *bottom_row, double *top_row) {
 
-    /* Each process work over a fragment of the whole matrix,
-     the matrix is partitioned on equally-sized portions */
-    fragment_size = (N * N) / comm_sz;
+    int x, y; 
+    double t; 
+    int i, index_xy = 0;
+    int total_cells_in_T = (N*N)/comm_sz;
 
-    temp = (float *) calloc (fragment_size, sizeof (float));
+    while (i < k*DATA_LENGHT) {
+        
+        x = a_xyt[i+INDEX_X];
+        y = a_xyt[i+INDEX_Y];
+        t = a_xyt[i+INDEX_T];
+        index_xy = get_index_from_coordinate(x, y, N);
 
-    for (row = 0; row < N / comm_sz; row++) {
-        for (col = 0; col < N; col++) {
-            accum = T[row * N + col];
-            operands = 1;
-            if (row != 0) {
-                accum += T[(row - 1) * N + col];
-                operands++;
+        if (my_pid*total_cells_in_T <= x < (my_pid+1)*total_cells_in_T) {
+            partition_T[index_xy] = t;
+        }
+        i = i+DATA_LENGHT;
+    }
+}
+
+void construct_t_prime(int N, int comm_sz, int my_pid,
+                        double *T, double *bottom_row, double *top_row) {
+
+    double average = 0;
+    double sum_temperature = 0; 
+    int total_neighbors = 0; 
+    int SELF = 1;
+    int x, y, index_xy = 0; 
+    int rows_to_process = 0;
+
+    for (x = 0; x < N/comm_sz; x++) {
+        for (y = 0; y < N; y++) {
+
+            index_xy = get_index_from_coordinate(x, y, N);
+            
+            total_neighbors = SELF;
+            sum_temperature = T[index_xy];
+            
+            if (x > 0) {
+                index_xy = get_index_from_coordinate(x-1, y, N);
+                sum_temperature += T[index_xy];
+                total_neighbors++;
             }
-            if (row != N / comm_sz - 1) {
-                accum += T[(row + 1) * N + col];
-                operands++;
+            if (x < (N/comm_sz)-1) {
+                index_xy = get_index_from_coordinate(x+1, y, N);
+                sum_temperature += T[index_xy];
+                total_neighbors++;
             }
-            if (col != 0) {
-                accum += T[row * N + col - 1];
-                operands++;
+            if (y > 0) {
+                index_xy = get_index_from_coordinate(x, y-1, N);
+                sum_temperature += T[index_xy];
+                total_neighbors++;
             }
-            if (col != N - 1) {
-                accum += T[row * N + col + 1];
-                operands++;
+            if (y < N-1) {
+                index_xy = get_index_from_coordinate(x, y+1, N);
+                sum_temperature += T[index_xy];
+                total_neighbors++;
             }
-            if (row == 0 && my_pid != 0) {
-                accum += neightbour_top[col];
-                operands++;
+            // significa que tengo fila siguiente
+            if (x == 0 && my_pid != _ROOT) {
+                sum_temperature += top_row[y];
+                total_neighbors++;
             }
-            if (row == N / comm_sz - 1 && my_pid != comm_sz - 1) {
-                accum += neightbour_bot[col];
-                operands++;
+            // si soy la última fila pero no estoy en el final de la matriz,
+            // entonces tengo vecinos
+            if (x == (N/comm_sz)-1 && my_pid != comm_sz-1) {
+                sum_temperature += bottom_row[y];
+                total_neighbors++;
             }
-            temp[row * N + col] = accum / operands;
+
+            average = sum_temperature/total_neighbors;
+            T[index_xy] = average;
         }
     }
-
-    /* Replace old matrix values with the new ones */
-    for (row = 0; row < N / comm_sz; row++) {
-        for (col = 0; col < N; col++) {
-            T[row * N + col] = temp[row * N + col];
-        }
-    }
-  free (temp);
 }
