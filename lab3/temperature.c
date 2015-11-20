@@ -46,7 +46,6 @@ int main(void) {
             a_xyt[i + INDEX_Y] = y;
             a_xyt[i + INDEX_T] = t;
             i = i + DATA_LENGHT;
-            printf("T?%.2f\n", t);
         }
     }
 
