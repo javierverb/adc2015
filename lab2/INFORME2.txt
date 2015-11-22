@@ -1,0 +1,73 @@
+Arquitectura de computadoras
+
+Integrantes del grupo:
+
+Dario Molina - darvak8@gmail.com
+Javier Verblud - javier2mil8@gmail.com
+Rogelio Capello - rdc.capello@gmail.com
+
+Diseño:
+  Respecto al diseño no habia margen para tomar demasiadas decisiones
+  dado que la esctructura que de un codigo OpenCL tiende a ser
+  generica, esto significa que una vez que se implemento un codigo
+  utilizando OpenCL para resolver un problema con una cantidad minima de cambios se puede
+  implementar la solucion para otro problema.
+
+  El esquema con el que se trabaja consta de los siguientes pasos:
+    * Seleccionar una plataforma.
+    * Seleccionar un dispositivo.
+    * Crear un contexto.
+    * Compilar el kernel en los dispositivos.
+    * Crear una cola de comandos.
+    * Enviar datos a los dispositivos.
+    * Ejecutar comandos en los dispositivos.
+    * Leer datos desde los dispositivos.
+    * Liberar los dispositivos utilizados.
+
+
+
+Objetivos para este laboratorio:
+
+- Plantear un problema de simulación física, basado en un problema real de forma concurrente y
+paralela. El problema y modelo aquí brindado será compartido con el siguiente laboratorio de la
+materia (paralelización en MPI).
+- Diseñar programas basados en los modelos de plataforma, memoria, programación y ejecución
+del paradigma OpenCL.
+- Desarrollar códigos y algoritmos capaces de explotar los beneficios del planteo concurrente
+dentro de un mismo dispositivo, y dentro de un sistema de heterogéneo.
+- Saber desempeñarse con especificaciones estándares.
+- Ejercitar los contenidos teóricos brindados en clases a encontrar en la bibliografía de la materia
+
+Las tareas y recomendaciones se pueden leer desde el pdf del enunciado.
+
+Metodologías de trabajo:
+
+    - División equitativa de módulos.
+    - Integrar los conocimientos adquiridos durante la resolución de los prácticos.
+    - Entendimiento del funcionamiento de la programacion en paralela.
+
+Resolución del módulo Generator.py:
+
+	Modulo escrito en python que es utilizado para inicializar la matriz base, tambien es utilizado para 
+	elegir los distintos modos de ejecucion.
+
+Resolución del módulo Helpers:
+
+	Modulo que contiene las funciones necesarias para poder leer un archivo de texto, una imagen y 
+	almacenar los datos de la imagen.
+
+Resolución del módulo temperature:
+
+	temperature.c contiene el algoritmo del codigo opencl con sus correspondientes llamada a funciones, clEnqueueNDRangeKernel,clGetDeviceInfo, clCreateContext, clCreateCommandQueue, clCreateBuffer, etc. en temperature.cl se almacena el kernel del opencl 
+	se va a utilizar para calcular el resultado final.
+
+Resolución del módulo tools:
+
+	Este modulo es auxiliar para los calculos del algoritmo en ella se realizaron funciones tales como: cargar datos de entrada, 
+	elegir los vecinos correctos, elegir el tipo de operacion, etc.
+
+Conclusiones:
+
+    La complejidad sobre el kernel y su procesos en paralelos llevaron un tiempo para ser entendidos. La programacion en opencl
+    es muy interesante ya que tiene un beneficio muy grande con respecto a necesidades de muchos calculos en un programa. Lo que nos
+    llevo mucho tiempo fue corregir ya que habia que corregir un modulo luego cargarlos a cluster y luego ejecutar cada vez que haciamos un cambio.   
